@@ -53,7 +53,7 @@ contract EventTicketsV2 {
     */
     
     modifier ownerornot(address _owner){
-        require(_owner == owner);
+        require(_owner != owner);
         _;
     }
 
@@ -76,7 +76,7 @@ contract EventTicketsV2 {
         events[idGenerator].totalTickets = _ticktes;
         uint cur_id = idGenerator;
         idGenerator += 1 ;
-        emit LogEventAdded(events[idGenerator].description, events[idGenerator].website, events[idGenerator].totalTickets, cur_id);
+        emit LogEventAdded(description, url, _ticktes, cur_id);
         
         return(cur_id);
     }
