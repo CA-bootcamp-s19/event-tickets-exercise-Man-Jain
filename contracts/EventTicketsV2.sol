@@ -10,7 +10,10 @@ contract EventTicketsV2 {
     */
     address payable public owner;
     uint   PRICE_TICKET = 100 wei;
-
+    
+    constructor() public{
+        owner = msg.sender;
+    }
     /*
         Create a variable to keep track of the event ID numbers.
     */
