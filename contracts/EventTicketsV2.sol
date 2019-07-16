@@ -53,7 +53,7 @@ contract EventTicketsV2 {
     */
     
     modifier ownerornot(address _owner){
-        require(_owner != owner);
+        require(_owner == owner);
         _;
     }
 
