@@ -150,8 +150,7 @@ contract EventTickets {
             - emit the appropriate event
     */
     
-    function endSale() public payable{
-        require(msg.sender == owner);
+    function endSale() public payable ownerornot(msg.sender){
         uint bal = address(this).balance;
         owner.transfer(bal);
         myEvent.isOpen = false;
