@@ -12,7 +12,7 @@ contract EventTickets {
         Use the appropriate keyword to allow ether transfers.
      */
      
-    address payable owner;
+    address payable public owner;
 
     uint   TICKET_PRICE = 100 wei;
 
@@ -50,7 +50,7 @@ contract EventTickets {
     */
     
     modifier ownerornot(address _owner){
-        require(_owner == owner);
+        require(_owner == owner,'sender is not owner');
         _;
     }
 
@@ -66,6 +66,7 @@ contract EventTickets {
         myEvent.description = _description;
         myEvent.website = _url;
         myEvent.totalTickets = _totalTickets;
+        myEvent.isOpen = true;
     }
 
     /*
@@ -108,9 +109,13 @@ contract EventTickets {
     */
     
     function buyTickets(uint count) public payable{
-        require(msg.value >= (count*TICKET_PRICE) && myEvent.isOpen == true && count<=myEvent.totalTickets);
+        require(msg.value >= (count*TICKET_PRICE));
+        require(myEvent.isOpen == true);
+        require(myEvent.totalTickets - myEvent.sales >= count, 'Sold Out');
         address payable buyer = msg.sender;
-        myEvent.totalTickets = myEvent.totalTickets - count;
+
+        myEvent.sales = myEvent.sales + count;
+
         myEvent.buyers[msg.sender] += count;
         if(msg.value >= (count*TICKET_PRICE)){
             buyer.transfer(msg.value-(count*TICKET_PRICE));
@@ -133,7 +138,7 @@ contract EventTickets {
         require(myEvent.buyers[msg.sender] != 0);
         address payable buyer = msg.sender;
         uint tickets =  myEvent.buyers[msg.sender];
-        myEvent.totalTickets = myEvent.totalTickets + tickets;
+        myEvent.sales = myEvent.sales + tickets;
         buyer.transfer((tickets*TICKET_PRICE));
         myEvent.buyers[msg.sender] = 0;
         

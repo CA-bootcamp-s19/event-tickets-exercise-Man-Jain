@@ -9,7 +9,7 @@ contract EventTicketsV2 {
         Define an public owner variable. Set it to the creator of the contract when it is initialized.
     */
     address payable public owner;
-    uint   PRICE_TICKET = 100 wei;
+    uint PRICE_TICKET = 100 wei;
     
     constructor() public{
         owner = msg.sender;
@@ -74,6 +74,7 @@ contract EventTicketsV2 {
         events[idGenerator].description = description;
         events[idGenerator].website = url;
         events[idGenerator].totalTickets = _ticktes;
+        events[idGenerator].isOpen = true;
         uint cur_id = idGenerator;
         idGenerator += 1 ;
         emit LogEventAdded(description, url, _ticktes, cur_id);
@@ -111,10 +112,12 @@ contract EventTicketsV2 {
             - emits the appropriate event
     */
     
-    function buyTickets(uint event_id, uint count) public payable{
-        require(msg.value >= (count*PRICE_TICKET) && events[event_id].isOpen == true && count<=events[event_id].totalTickets);
+    function buyTickets(uint event_id, uint count) public payable {
+        require(msg.value >= (count*PRICE_TICKET));
+        require(events[event_id].isOpen == true);
+        require(count <= events[event_id].totalTickets - events[event_id].sales);
+
         address payable buyer = msg.sender;
-        events[event_id].totalTickets = events[event_id].totalTickets - count;
         events[event_id].sales = events[event_id].sales + count;
         events[event_id].buyers[msg.sender] += count;
         if(msg.value >= (count*PRICE_TICKET)){
@@ -139,8 +142,7 @@ contract EventTicketsV2 {
         require(events[event_id].buyers[msg.sender] != 0);
         address payable buyer = msg.sender;
         uint tickets =  events[event_id].buyers[msg.sender];
-        events[event_id].totalTickets = events[event_id].totalTickets + tickets;
-        events[event_id].sales = 0;
+        events[event_id].sales += tickets;
         buyer.transfer((tickets*PRICE_TICKET));
         events[event_id].buyers[msg.sender] = 0;
         
@@ -171,7 +173,7 @@ contract EventTicketsV2 {
     {
         events[event_id].isOpen = false;
         uint balance = events[event_id].sales * PRICE_TICKET;
-        msg.sender.transfer(balance);
+        owner.transfer(balance);
         emit LogEndSale(owner, balance, event_id);
     }
 }
